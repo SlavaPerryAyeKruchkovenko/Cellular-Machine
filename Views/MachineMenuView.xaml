@@ -32,8 +32,8 @@
       <Setter Property="Watermark" Value="Write num"/>
     </Style>
   </UserControl.Styles>
-  <Grid RowDefinitions="2*,5*">
-    <StackPanel>
+  <DockPanel>
+    <StackPanel DockPanel.Dock="Top">
       <Label Content="Resoulution"/>
       <TextBox Text="{Binding Resoulution}"/>
       <Label Content="Density"/>
@@ -41,5 +41,11 @@
       <Button Content="{Binding StartText}"/>
       <Button Content="{Binding FinishText}"/>      
     </StackPanel>
-  </Grid>
+    <StackPanel DockPanel.Dock="Bottom">
+      <Label DockPanel.Dock="Top" Content="Zoom"/>
+      <Slider DockPanel.Dock="Bottom" Value="{Binding Value}"
+              Background="Red"/>
+    </StackPanel>
+    <StackPanel/>
+  </DockPanel>
 </UserControl>

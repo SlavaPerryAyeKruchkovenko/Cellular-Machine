@@ -12,6 +12,6 @@
     mc:Ignorable="d">
   <Grid ColumnDefinitions="*,3*" ShowGridLines="True">
     <ContentControl Content="{Binding Menu}"/>
-    <Canvas Classes="Purple" Grid.Column="1"/>
+    <ContentControl Grid.Column="1" Content="{Binding Holst}"/>
   </Grid>
 </Window>
