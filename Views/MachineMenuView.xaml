@@ -32,14 +32,20 @@
       <Setter Property="Watermark" Value="Write num"/>
     </Style>
   </UserControl.Styles>
-  <Grid RowDefinitions="2*,5*">
-    <StackPanel>
+  <DockPanel>
+    <StackPanel DockPanel.Dock="Top">
       <Label Content="Resoulution"/>
       <TextBox Text="{Binding Resoulution}"/>
       <Label Content="Density"/>
       <TextBox Text="{Binding Density}"/>
-      <Button Content="{Binding StartText}"/>
-      <Button Content="{Binding FinishText}"/>      
+      <Button Content="{Binding StartText}" Command="{Binding $parent[Window].DataContext.StartGame}"/>
+      <Button Content="{Binding FinishText}" Command="{Binding $parent[Window].DataContext.Holst.Finish}"/>      
     </StackPanel>
-  </Grid>
+    <StackPanel DockPanel.Dock="Bottom">
+      <Label DockPanel.Dock="Top" Content="Zoom"/>
+      <Slider DockPanel.Dock="Bottom" Value="{Binding Value}"
+              Background="Red"/>
+    </StackPanel>
+    <StackPanel/>
+  </DockPanel>
 </UserControl>
