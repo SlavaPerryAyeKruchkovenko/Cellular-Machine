@@ -10,7 +10,7 @@
   <ItemsControl Items="{Binding Cells}">
     <ItemsControl.ItemsPanel>
       <ItemsPanelTemplate>
-        <Canvas Classes="Purple"/>
+        <Canvas Classes="Purple" PointerPressed="AddRectangle"/>
       </ItemsPanelTemplate>
     </ItemsControl.ItemsPanel>
   </ItemsControl>

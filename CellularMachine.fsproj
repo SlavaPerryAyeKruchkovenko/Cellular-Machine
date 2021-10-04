@@ -7,33 +7,34 @@
     <AvailableItemName Include="AvaloniaResource" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\Cell.fs" />
+    <Compile Include="Services\Rule.fs" />
     <AvaloniaResource Include="Assets\**" />
+    <AvaloniaResource Include="**\*.xaml">
+      <SubType>Designer</SubType>
+    </AvaloniaResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+    <Compile Include="ViewModels\ViewModelBase.fs" />
+    <Compile Include="ViewModels\MachineCanvasViewModel.fs" />
+    <Compile Include="ViewModels\MachineMenuViewModel.fs" />
+    <Compile Include="ViewModels\MainWindowViewModel.fs" />
     <AvaloniaXaml Include="Views\MachineCanvasView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </AvaloniaXaml>
     <Compile Include="Views\MachineCanvasView.xaml.fs" />
-    <AvaloniaResource Include="**\*.xaml">
-      <SubType>Designer</SubType>
-    </AvaloniaResource>
     <Compile Include="Views\MainWindow.xaml.fs" />
-  </ItemGroup>
-  <ItemGroup>
-    <AvaloniaResource Remove="Views\MachineCanvasView.xaml" />
-    <AvaloniaResource Remove="Views\MachineMenuView.xaml" />
-  </ItemGroup>
-  <ItemGroup>
     <AvaloniaXaml Include="Views\MachineMenuView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </AvaloniaXaml>
     <Compile Include="Views\MachineMenuView.xaml.fs" />
   </ItemGroup>
   <ItemGroup>
+    <AvaloniaResource Remove="Views\MachineCanvasView.xaml" />
+    <AvaloniaResource Remove="Views\MachineMenuView.xaml" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="Assets\avalonia-logo.ico" />
-    <Compile Include="ViewModels\ViewModelBase.fs" />
-    <Compile Include="ViewModels\MachineCanvasViewModel.fs" />
-    <Compile Include="ViewModels\MachineMenuViewModel.fs" />
-    <Compile Include="ViewModels\MainWindowViewModel.fs" />
     <Compile Include="ViewLocator.fs" />
     <Compile Include="App.xaml.fs" />
     <Compile Include="Program.fs" />
@@ -43,5 +44,8 @@
     <PackageReference Include="Avalonia.Desktop" Version="0.10.3" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.3" />
     <PackageReference Include="Avalonia.Diagnostics" Version="0.10.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Models\" />
   </ItemGroup>
 </Project>
