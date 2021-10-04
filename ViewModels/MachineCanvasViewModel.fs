@@ -13,6 +13,7 @@ type MachineCanvasViewModel() =
     
     let list = new ObservableCollection<Rectangle>()
     member __.Cells with get() = list
+    member this.Finish() = this.Cells.Clear()
     member this.AddChild(thick:Thickness,size)  = 
         let cell = 
             let rect = new Rectangle()
@@ -33,7 +34,8 @@ type MachineCanvasViewModel() =
                         if cell2.Location = cell.Location then
                             cell.Neighbors <- cell2.Neighbors + cell.Neighbors
                 let list = list1.Concat list2
-                list.Distinct()
+                let lst = downcast list
+                lst |> Seq.distinctBy(fun x -> x.Location) |> Seq.cache
 
             let getLine(point:Point, size, needCell) = 
                 let checkNum(point:Point) =  (point.X >= 0.0 && point.Y >= 0.0)

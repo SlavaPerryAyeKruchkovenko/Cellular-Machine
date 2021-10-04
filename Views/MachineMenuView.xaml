@@ -39,7 +39,7 @@
       <Label Content="Density"/>
       <TextBox Text="{Binding Density}"/>
       <Button Content="{Binding StartText}" Command="{Binding $parent[Window].DataContext.StartGame}"/>
-      <Button Content="{Binding FinishText}"/>      
+      <Button Content="{Binding FinishText}" Command="{Binding $parent[Window].DataContext.Holst.Finish}"/>      
     </StackPanel>
     <StackPanel DockPanel.Dock="Bottom">
       <Label DockPanel.Dock="Top" Content="Zoom"/>
