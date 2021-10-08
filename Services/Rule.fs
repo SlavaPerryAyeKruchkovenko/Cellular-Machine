@@ -1,5 +1,6 @@
 ﻿namespace Services
 open Avalonia
+open Avalonia.Controls.Shapes
 type Rule = 
     struct
         val mutable DieRule:int
@@ -9,5 +10,6 @@ type Rule =
 type Cell(loc,value) =
     class
         member val Neighbors:int = value with get,set
-        member val Location: Point = loc with get,set
+        member val Location: Point = loc with get
+        member val Rectangle: Rectangle = null with get,set
     end

@@ -11,7 +11,7 @@ open System
 type MachineCanvasViewModel() =
     inherit ViewModelBase();
     
-    let list = new ObservableCollection<Rectangle>()
+    let mutable list = new ObservableCollection<Rectangle>()
     member __.Cells with get() = list
     member this.Finish() = this.Cells.Clear()
     member this.AddChild(thick:Thickness,size)  = 
@@ -23,11 +23,21 @@ type MachineCanvasViewModel() =
             rect.Fill <- Brushes.Yellow
             rect.Tapped.Add(fun evArg -> this.Cells.Remove(rect)|> ignore)
             rect
-        list.Add(cell);
-    member this.ActivateMachine(cellSize:int,rules:Rule)=  
-        let rec nextStepMachine(index,size,rules:Rule) =
+        if not (list.Contains cell) then
+            list.Add(cell);
+    member this.DeleteChild(cell:Cell)=
+        let size = cell.Location
+        let mutable curCell:Option<Rectangle> = None
+        for cell in list do 
+            if Math.Round cell.Bounds.X = size.X && Math.Round cell.Bounds.Y = size.Y then
+                curCell <- Some cell;
+        if curCell.IsSome then
+            list.Remove(curCell.Value)|> ignore
 
-            let union(list1: Cell seq,list2:Cell seq,rules:Rule) = 
+    member this.ActivateMachine(cellSize:int,rules:Rule)=  
+        let rec nextStepMachine(index,size) =
+
+            let union(list1: Cell seq,list2:Cell seq) = 
                 
                 for cell in list1 do
                     for cell2 in list2 do
@@ -58,10 +68,14 @@ type MachineCanvasViewModel() =
                 let cellList1 = getLine(new Point(point.X-(float)cellSize,point.Y),(float)cellSize,true)
                 let cellList = (cellList1.Concat(getLine(point,(float)cellSize,false))).Concat(getLine(new Point(point.X+(float)cellSize,point.Y),(float)cellSize,true))
                 
-                union(cellList,nextStepMachine(index+1,size,rules),rules)
+                union(cellList,nextStepMachine(index+1,size))
             else
                 upcast []
-        let cells = nextStepMachine(0,this.Cells.Count,rules)
-        for cell in cells.Where(fun x-> x.Neighbors = rules.BornRule) do
+        let cells = nextStepMachine(0,this.Cells.Count)
+        let num = list
+        for cell in cells.Where(fun x -> x.Neighbors <> 2 && x.Neighbors <> 3) do
+            this.DeleteChild(cell)
+        for cell in cells.Where(fun x-> x.Neighbors = 3) do
             let thick = new Thickness(cell.Location.X,cell.Location.Y)
             this.AddChild(thick,(float)cellSize)
+        //list <- downcast (list |> Seq.distinctBy(fun x -> x.Bounds))        
