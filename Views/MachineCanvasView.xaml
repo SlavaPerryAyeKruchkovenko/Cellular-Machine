@@ -10,8 +10,23 @@
   <ItemsControl Items="{Binding Cells}">
     <ItemsControl.ItemsPanel>
       <ItemsPanelTemplate>
-        <Canvas Classes="Purple" PointerPressed="AddRectangle"/>
+        <Canvas Classes="Purple" PointerPressed="AddRectangle" x:Name="holst"/>
       </ItemsPanelTemplate>
     </ItemsControl.ItemsPanel>
+    <ItemsControl.ItemContainerStyle>
+      <Style Selector="Rectangle">
+        <Setter Property="Canvas.Left" Value="{Binding Path=Location.X}"/>
+        <Setter Property="Canvas.Top" Value="{Binding Path=Location.Y}"/>
+      </Style>
+    </ItemsControl.ItemContainerStyle>
+    <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Rectangle Width="{Binding Path=Size.Width}" Height="{Binding Path=Size.Height}"
+                         Fill="Yellow" Tapped="DeleteRect"
+                         ContextFlyout="{Binding Path=Neighbors}"
+                           >
+              </Rectangle>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
   </ItemsControl>
 </UserControl>

@@ -7,9 +7,7 @@ type Rule =
         val mutable BornRule:int
     end
 
-type Cell(loc,value) =
-    class
+type Cell(loc,value,size) =
         member val Neighbors:int = value with get,set
         member val Location: Point = loc with get
-        member val Rectangle: Rectangle = null with get,set
-    end
+        member val Size:Size = size with get
