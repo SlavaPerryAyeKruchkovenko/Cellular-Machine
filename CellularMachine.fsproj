@@ -7,7 +7,8 @@
     <AvailableItemName Include="AvaloniaResource" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Services\Rule.fs" />
+    <Compile Include="Converters\FShartListConverter.fs" />
+    <Compile Include="Models\Rule.fs" />
     <AvaloniaResource Include="Assets\**" />
     <AvaloniaResource Include="**\*.xaml">
       <SubType>Designer</SubType>
@@ -46,6 +47,6 @@
     <PackageReference Include="Avalonia.Diagnostics" Version="0.10.3" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Models\" />
+    <Folder Include="Services\" />
   </ItemGroup>
 </Project>

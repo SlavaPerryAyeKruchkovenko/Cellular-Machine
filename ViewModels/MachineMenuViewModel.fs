@@ -4,11 +4,13 @@ open ReactiveUI
 
 type MachineMenuViewModel() =
     inherit ViewModelBase()
-    let mutable resoulution = 0
-    let mutable density = 0
-    let mutable value = 1;
-    member __.StartText with get() = "Start"
+    let mutable resoulution = [3]
+    let mutable density = [2;3]
+    let mutable value = 10;
+    member __.StepText with get() = "Next Steep"
     member __.FinishText with get() = "Finish"
+    member __.StartText with get() = "Start"
+    member __.CloseText with get() = "Close"
     member __.Resoulution
         with get() = resoulution
         and set(value) = __.RaiseAndSetIfChanged(&resoulution, value) |> ignore

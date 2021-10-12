@@ -6,26 +6,24 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     d:DesignHeight="450"
     d:DesignWidth="800"
-    mc:Ignorable="d">
-  <ItemsControl Items="{Binding Cells}">
+    mc:Ignorable="d"
+    > 
+  <ItemsControl Items="{Binding Cells}" x:Name="items">
     <ItemsControl.ItemsPanel>
       <ItemsPanelTemplate>
         <Canvas Classes="Purple" PointerPressed="AddRectangle" x:Name="holst"/>
       </ItemsPanelTemplate>
     </ItemsControl.ItemsPanel>
-    <ItemsControl.ItemContainerStyle>
-      <Style Selector="Rectangle">
-        <Setter Property="Canvas.Left" Value="{Binding Path=Location.X}"/>
-        <Setter Property="Canvas.Top" Value="{Binding Path=Location.Y}"/>
-      </Style>
-    </ItemsControl.ItemContainerStyle>
     <ItemsControl.ItemTemplate>
-            <DataTemplate>
-              <Rectangle Width="{Binding Path=Size.Width}" Height="{Binding Path=Size.Height}"
-                         Fill="Yellow" Tapped="DeleteRect"
-                         ContextFlyout="{Binding Path=Neighbors}"
-                           >
-              </Rectangle>
+            <DataTemplate>             
+              <ContentControl Content="{Binding Path=Neighbors}"
+                              Width="{Binding Path=Size.Width, Mode=OneWay}" Height="{Binding Path=Size.Height, Mode=OneWay}"
+                              Background="Yellow" Tapped="DeleteRect"
+                              Margin="{Binding Path=MarginLoc}"
+                              FontSize="{Binding Path=Size.Width, Mode=OneWay}"
+                              VerticalContentAlignment="Stretch"
+                              HorizontalContentAlignment="Stretch">               
+              </ContentControl>
             </DataTemplate>
         </ItemsControl.ItemTemplate>
   </ItemsControl>

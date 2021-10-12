@@ -4,9 +4,10 @@ open Avalonia
 open Avalonia.Controls.Shapes
 open System.Collections.ObjectModel
 open Avalonia.Media
-open Services
+open Models
 open System.Linq
 open System
+open System.Threading.Tasks
 
 type MachineCanvasViewModel() =
     inherit ViewModelBase();
@@ -14,13 +15,13 @@ type MachineCanvasViewModel() =
     let mutable list = new ObservableCollection<Cell>()
     member __.Cells with get() = list
     member this.Finish() = this.Cells.Clear()
-    member this.AddChild(thick:Thickness,size)  = 
-
-        let cell = new Cell(new Point(thick.Right,thick.Top),0,new Size(size,size))
-        if not (list.Contains cell) then
-            list.Add(cell);
-
-    member this.DeleteChild(cell:Cell)=
+    member this.AddChild(cell:Cell)  = 
+        let replay = this.Cells.Where(fun x-> x.Location = cell.Location)
+        if  not (replay.Count() = 0) then
+            list.Remove(replay.First()) |> ignore          
+        list.Add(cell);
+    
+    member this.DeleteChildAboutLoc(cell:Cell)=
 
         let size = cell.Location
         let mutable curCell:Option<Cell> = None
@@ -31,7 +32,7 @@ type MachineCanvasViewModel() =
             list.Remove(curCell.Value)|> ignore
 
     member this.ActivateMachine(cellSize:int,rules:Rule)=  
-        let rec nextStepMachine(index,size) =
+        let rec nextStepMachine(index,size):Cell seq =
 
             let union(list1: Cell seq,list2:Cell seq) =               
                 for cell in list1 do
@@ -56,7 +57,7 @@ type MachineCanvasViewModel() =
                                     yield cell3
                                 }
                 result |> Seq.cache
-
+            
             if not (index = size) then
                 let cell = this.Cells.[index]   
                 let point = cell.Location
@@ -66,10 +67,14 @@ type MachineCanvasViewModel() =
                 union(cellList,nextStepMachine(index+1,size))
             else
                 upcast []
-        let cells = nextStepMachine(0,this.Cells.Count)
-        for cell in cells.Where(fun x -> x.Neighbors <> 2 && x.Neighbors <> 3) do
-            this.DeleteChild(cell)
-        for cell in cells.Where(fun x-> x.Neighbors = 3) do
-            let thick = new Thickness(cell.Location.X,cell.Location.Y)
-            this.AddChild(thick,(float)cellSize)
+            
+        async{   
+            let cells = nextStepMachine(0,this.Cells.Count)//|> Async.Parallel |> Async.Ignore            
+            for cell in cells.Where(fun x -> not (rules.AliveRule.Contains x.Neighbors) ) do
+                 do! Task.Run(fun () -> this.DeleteChildAboutLoc(cell))|> Async.AwaitTask
+            for cell in cells.Where(fun x-> rules.BornRule.Contains x.Neighbors) do
+                do! Task.Run(fun () -> this.AddChild(cell))|> Async.AwaitTask
+        }        
+        
+        
         //list <- downcast (list |> Seq.distinctBy(fun x -> x.Bounds))        
