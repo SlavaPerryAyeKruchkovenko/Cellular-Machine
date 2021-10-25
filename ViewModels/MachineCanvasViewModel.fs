@@ -8,73 +8,68 @@ open Models
 open System.Linq
 open System
 open System.Threading.Tasks
+open System.Collections.Generic
 
 type MachineCanvasViewModel() =
     inherit ViewModelBase();
     
-    let mutable list = new ObservableCollection<Cell>()
-    member __.Cells with get() = list
+    let mutable list: ObservableCollection<Cell> = new ObservableCollection<Cell>()
+    member __.Cells with get() = list;
     member this.Finish() = this.Cells.Clear()
     member this.AddChild(cell:Cell)  = 
-        let replay = this.Cells.Where(fun x-> x.Location = cell.Location)
-        if  not (replay.Count() = 0) then
-            list.Remove(replay.First()) |> ignore          
-        list.Add(cell);
+        if  list.Contains cell then
+            list.Remove(cell) |> ignore
+        list.Add(cell)
     
     member this.DeleteChildAboutLoc(cell:Cell)=
 
         let size = cell.Location
         let mutable curCell:Option<Cell> = None
-        for cell in list do 
-            if Math.Round cell.Location.X = size.X && Math.Round cell.Location.Y = size.Y then
-                curCell <- Some cell;
+        for cell1 in list do 
+            if Math.Round cell1.Location.X = size.X && Math.Round cell1.Location.Y = size.Y then
+                curCell <- Some cell1;
         if curCell.IsSome then
-            list.Remove(curCell.Value)|> ignore
+            list.Remove(curCell.Value) |> ignore
 
-    member this.ActivateMachine(cellSize:int,rules:Rule)=  
-        let rec nextStepMachine(index,size):Cell seq =
+    member this.ActivateMachine(cellSize:int,rules:Rule)=
+        
+        let nextStepMachine(cells:IEnumerable<Cell>,cellSize):Cell list =
+            let getCell(point:Point, size) = 
+                let checkNum(point:Point) =  (point.X >= 0.0 && point.Y >= 0.0) 
+                if(checkNum(point)) then
+                    new Cell(new Point(point.X,point.Y),1,new Size(size,size),false)
+                else
+                    new Cell(new Point(),0,new Size(),false)
+            let getAllCells(size,cellSize) = [for i = 0 to size-1 do
+                                                let cell = this.Cells.[i]   
+                                                let point = cell.Location
+                                                getCell(new Point(point.X - cellSize,point.Y - cellSize),cellSize)
+                                                getCell(new Point(point.X,point.Y - cellSize),cellSize)
+                                                getCell(new Point(point.X + cellSize,point.Y - cellSize),cellSize)
+                                                getCell(new Point(point.X - cellSize,point.Y),cellSize)
+                                                getCell(new Point(point.X + cellSize,point.Y),cellSize)
+                                                getCell(new Point(point.X - cellSize,point.Y + cellSize),cellSize)
+                                                getCell(new Point(point.X,point.Y + cellSize),cellSize)
+                                                getCell(new Point(point.X + cellSize,point.Y + cellSize),cellSize)
+                                                ]
+                                                        
+            let cells = getAllCells(cells.Count(),cellSize)
+            let mutable cellsCopy = cells.ToList()
+            for cell in cellsCopy do 
+                let size = (cellsCopy.Where(fun x -> x.Equals(cell))).Count()
+                cells.First(fun x-> x.Equals(cell)).Neighbors <- size
+            cells |> List.distinct    
+        let cells = nextStepMachine(list,(float)cellSize)
+        this.Cells.Clear()
+        for cell in cells.Where(fun x -> not (rules.AliveRule.Contains x.Neighbors) ) do
+            this.Cells.Remove(cell)|> ignore
+        let birthCells = new ObservableCollection<Cell>(cells |> List.filter(fun x-> rules.BornRule.Contains x.Neighbors))
+        for cell in birthCells do
+            this.AddChild(cell)
+        
 
-            let union(list1: Cell seq,list2:Cell seq) =               
-                for cell in list1 do
-                    for cell2 in list2 do
-                        if cell2.Location = cell.Location then
-                            cell.Neighbors <- cell2.Neighbors + cell.Neighbors
-                let list = list1.Concat list2
-                let lst = downcast list
-                lst |> Seq.distinctBy(fun x -> x.Location) |> Seq.cache
-
-            let getLine(point:Point, size, needCell) = 
-                let checkNum(point:Point) =  (point.X >= 0.0 && point.Y >= 0.0)
-                let result = seq{
-                                let cell1 = new Cell(new Point(point.X,point.Y-size),1,new Size(size,size))
-                                if(checkNum(cell1.Location)) then
-                                    yield cell1
-                                let cell2 = new Cell(new Point(point.X,point.Y),1,new Size(size,size))
-                                if(checkNum(cell2.Location) && needCell) then
-                                    yield cell2
-                                let cell3 = new Cell(new Point(point.X,point.Y+size),1,new Size(size,size))
-                                if(checkNum(cell3.Location)) then
-                                    yield cell3
-                                }
-                result |> Seq.cache
-            
-            if not (index = size) then
-                let cell = this.Cells.[index]   
-                let point = cell.Location
-                let cellList1 = getLine(new Point(point.X-(float)cellSize,point.Y),(float)cellSize,true)
-                let cellList = (cellList1.Concat(getLine(point,(float)cellSize,false))).Concat(getLine(new Point(point.X+(float)cellSize,point.Y),(float)cellSize,true))
-                
-                union(cellList,nextStepMachine(index+1,size))
-            else
-                upcast []
-            
-        async{   
-            let cells = nextStepMachine(0,this.Cells.Count)//|> Async.Parallel |> Async.Ignore            
-            for cell in cells.Where(fun x -> not (rules.AliveRule.Contains x.Neighbors) ) do
-                 do! Task.Run(fun () -> this.DeleteChildAboutLoc(cell))|> Async.AwaitTask
-            for cell in cells.Where(fun x-> rules.BornRule.Contains x.Neighbors) do
-                do! Task.Run(fun () -> this.AddChild(cell))|> Async.AwaitTask
-        }        
+        
+                      
         
         
         //list <- downcast (list |> Seq.distinctBy(fun x -> x.Bounds))        

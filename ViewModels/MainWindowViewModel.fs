@@ -19,9 +19,7 @@ type MainWindowViewModel() =
         let rule = new Rule(menu.Density,menu.Resoulution)
         let size = menu.Value
         if(rule.BornRule.[0] > 0 && rule.AliveRule.Length > 0 && size > 0) then
-            holst.ActivateMachine(size,rule) |> Async.Start |> ignore
-        else
-            ()
+            holst.ActivateMachine(size,rule)
     member this.StartGame() = 
         token <- new CancellationTokenSource()
         let task() = 
@@ -30,9 +28,7 @@ type MainWindowViewModel() =
                 let size = menu.Value
                 if(rule.BornRule.[0] > 0 && rule.AliveRule.Length > 0 && size > 0) then
                     while not token.IsCancellationRequested do
-                        do! holst.ActivateMachine(size,rule)                        
-                else
-                    ()
+                        do! Task.Run(fun () -> holst.ActivateMachine(size,rule)) |> Async.AwaitTask                      
             }
         task()
         |> Async.Start

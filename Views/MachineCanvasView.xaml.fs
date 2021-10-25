@@ -31,7 +31,7 @@ type MachineCanvasView () as self =
                 Canvas <- Some canvas
             let position = e.GetCurrentPoint(canvas).Position      
             let point = new Point(CorrectPos(position.X,size.Width),CorrectPos(position.Y,size.Width))
-            let cell = new Cell(point,0,size)
+            let cell = new Cell(point,0,size,true)
             match self.DataContext with
             | :? MachineCanvasViewModel as vm -> vm.AddChild(cell)
             | _ -> ()
@@ -44,7 +44,7 @@ type MachineCanvasView () as self =
         match object with 
         | :? ContentControl as cntrl -> 
             let point = new Point(Math.Round cntrl.Bounds.X,Math.Round cntrl.Bounds.Y)
-            let cell = new Cell(point,0,new Size())
+            let cell = new Cell(point,0,new Size(),true)
             match self.DataContext with
             | :? MachineCanvasViewModel as vm -> vm.DeleteChildAboutLoc(cell)
             | _ -> ()
