@@ -1,6 +1,8 @@
 ﻿namespace Models
 open Avalonia
 open Avalonia.Controls.Shapes
+open System.Collections.Generic
+
 type Rule = 
     struct
         val AliveRule:int list
@@ -9,6 +11,12 @@ type Rule =
     end
 
 type Cell(loc,value,size,alive) =
+        interface IEqualityComparer<Cell> with    
+            override this.Equals(cell1,cell2) =
+                cell1.Location = cell2.Location && cell2.IsAlive = cell1.IsAlive
+            override this.GetHashCode(cell) =
+                (int32)(cell.Location.X + cell.Location.Y) + if cell.IsAlive then 1 else 0
+
         member val Neighbors:int = value with get,set
         member val Location: Point = loc with get
         member val Size:Size = size with get

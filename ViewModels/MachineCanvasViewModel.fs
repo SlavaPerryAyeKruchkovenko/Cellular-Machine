@@ -30,7 +30,7 @@ type MachineCanvasViewModel() =
                         [|for j = 0.0 to Math.Ceiling this.Holst.Bounds.Width/size - 1.0 do
                             new Cell(new Point(i,j),0,new Size(size,size),false)|]|] 
         for cell in list do
-            clear.[int (cell.Location.X/size)].[int (cell.Location.Y/size)] <- cell
+            clear.[int (cell.Location.Y/size)].[int (cell.Location.X/size)] <- cell
         holst <- clear
 
     member this.DeleteChildAboutLoc(cell:Cell) =
@@ -45,9 +45,8 @@ type MachineCanvasViewModel() =
     member this.ActivateMachine(cellSize:int,rules:Rule)=
         let checkNum(point:Point) =  (point.X >= 0.0 && point.Y >= 0.0) 
         let checkArray(point:Point,x,y)=     
-            let a = holst.[0].Length
-            let b = checkNum(point) && holst.Length > x && holst.[0].Length > y
-            b
+            checkNum(point) && holst.Length > y && holst.[0].Length > x
+
         let getCell(point:Point, size) =         
             if checkNum point then
                 new Cell(new Point(point.X,point.Y),1,new Size(size,size),true)
@@ -57,7 +56,7 @@ type MachineCanvasViewModel() =
             let x = int (point.X/size)
             let y = int (point.Y/size)
             if checkArray(point,x,y) then
-                if holst.[x].[y].IsAlive then 1 else 0
+                if holst.[y].[x].IsAlive then 1 else 0
             else
                 0
         let checkCell(point:Point,size) =
@@ -83,22 +82,27 @@ type MachineCanvasViewModel() =
                             getCell(new Point(point.X + size,point.Y + size),size)] |> List.distinct
         let aliveCell = [for cell in neighbors do
                             let num = checkCell(cell.Location,size)
+                            cell.Neighbors <- num
                             if rules.BornRule.Contains num then
                                 cell]       
-        aliveCell |> List.map(fun x-> let x1 = int x.Location.X/cellSize 
+
+        let deathCell = list.Where(fun x-> not (rules.AliveRule.Contains(checkCell(x.Location,size)))).ToList()
+        
+        aliveCell |> List.distinctBy(fun x -> x.Location)
+                  |> List.map(fun x-> let x1 = int x.Location.X/cellSize 
                                       let y = int x.Location.Y/cellSize
                                       if checkArray(x.Location,x1,y) then
-                                        holst.[int x.Location.X/cellSize].[int x.Location.Y/cellSize] <- x
-                                        list.Add(x)) |> ignore
-        let deathCell = list.Where(fun x-> not (rules.AliveRule.Contains(checkCell(x.Location,size)))).ToList()
+                                         lock list (fun () -> holst.[y].[x1] <- x
+                                                              this.AddChild(x))) |> ignore
+                                         
+                                                
         for cell in deathCell do
             let point = cell.Location
             let x = int (point.X/size)
             let y = int (point.Y/size)
-            holst.[x].[y] <- new Cell(new Point(float x,float y),0,new Size(size,size),false)  
-            list.Remove(cell)|> ignore
+            lock list (fun () -> holst.[y].[x] <- new Cell(new Point(float x,float y),0,new Size(size,size),false)
+                                 list.Remove(cell)|> ignore)                
         ()
-        
         
 
         
