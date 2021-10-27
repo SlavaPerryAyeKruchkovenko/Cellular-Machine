@@ -12,9 +12,8 @@ open System
 
 type MachineCanvasView () as self = 
     inherit UserControl ()
-
     do AvaloniaXamlLoader.Load self
-    let mutable Canvas:Option<Canvas> = None
+    let mutable canvas:Option<Canvas> = None
     let mutable canClick = true 
     member this.AddRectangle(object:obj,e:PointerPressedEventArgs)=
         if canClick then
@@ -26,14 +25,15 @@ type MachineCanvasView () as self =
                     num - x 
                 
             let size = new Size(10.0,10.0)       
-            let canvas:Canvas = downcast object
-            if Canvas.IsNone then
-                Canvas <- Some canvas
-            let position = e.GetCurrentPoint(canvas).Position      
+            let canvas2:Canvas = downcast object
+            if canvas.IsNone then
+                canvas <- Some canvas2
+            let position = e.GetCurrentPoint(canvas2).Position      
             let point = new Point(CorrectPos(position.X,size.Width),CorrectPos(position.Y,size.Width))
             let cell = new Cell(point,0,size,true)
             match self.DataContext with
-            | :? MachineCanvasViewModel as vm -> vm.AddChild(cell)
+            | :? MachineCanvasViewModel as vm -> vm.AddChild(cell) 
+                                                 vm.Holst <- canvas.Value
             | _ -> ()
         else
             canClick <- true
@@ -48,4 +48,4 @@ type MachineCanvasView () as self =
             match self.DataContext with
             | :? MachineCanvasViewModel as vm -> vm.DeleteChildAboutLoc(cell)
             | _ -> ()
-        | _ -> ()
+        | _ -> ()    
