@@ -30,7 +30,8 @@ type MainWindowViewModel() =
                 holst.GenerateField((float)size)
                 if(rule.BornRule.[0] > 0 && rule.AliveRule.Length > 0 && size > 0) then
                     while not token.IsCancellationRequested do
-                        do! Task.Run(fun () -> holst.ActivateMachine(size,rule)) |> Async.AwaitTask                      
+                        lock holst.Cells (fun () -> holst.ActivateMachine(size,rule))
+                        do! Task.Delay(100) |> Async.AwaitTask                            
             }
         task()
         |> Async.Start

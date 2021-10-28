@@ -10,6 +10,7 @@ open System
 open System.Threading.Tasks
 open System.Collections.Generic
 open Avalonia.Controls
+open Avalonia.Threading
 
 type MachineCanvasViewModel() =
     inherit ViewModelBase();
@@ -22,8 +23,11 @@ type MachineCanvasViewModel() =
 
     member this.AddChild(cell:Cell)  = 
         if  list.Contains cell then
-            list.Remove(cell) |> ignore
-        list.Add(cell)
+            Dispatcher.UIThread.InvokeAsync(fun () ->
+                list.Remove(cell) |> ignore) |> Async.AwaitTask |> ignore        
+
+        Dispatcher.UIThread.InvokeAsync(fun () ->
+            list.Add(cell)) |> Async.AwaitTask |> ignore
 
     member this.GenerateField(size:float) =
         let clear = [|for i = 0.0 to Math.Ceiling this.Holst.Bounds.Height/size - 1.0 do
@@ -40,7 +44,8 @@ type MachineCanvasViewModel() =
             if cell.Equals(cell1) then
                 curCell <- Some cell1;
         if curCell.IsSome then
-            list.Remove(curCell.Value) |> ignore
+            Dispatcher.UIThread.InvokeAsync(fun () ->
+                list.Remove(curCell.Value) |> ignore) |> Async.AwaitTask |> ignore
 
     member this.ActivateMachine(cellSize:int,rules:Rule)=
         let checkNum(point:Point) =  (point.X >= 0.0 && point.Y >= 0.0) 
@@ -80,6 +85,7 @@ type MachineCanvasViewModel() =
                             getCell(new Point(point.X - size,point.Y + size),size)
                             getCell(new Point(point.X,point.Y + size),size)
                             getCell(new Point(point.X + size,point.Y + size),size)] |> List.distinct
+        
         let aliveCell = [for cell in neighbors do
                             let num = checkCell(cell.Location,size)
                             cell.Neighbors <- num
@@ -100,13 +106,6 @@ type MachineCanvasViewModel() =
             let point = cell.Location
             let x = int (point.X/size)
             let y = int (point.Y/size)
-            lock list (fun () -> holst.[y].[x] <- new Cell(new Point(float x,float y),0,new Size(size,size),false)
-                                 list.Remove(cell)|> ignore)                
-        ()
-        
-
-        
-                      
-        
-        
-        //list <- downcast (list |> Seq.distinctBy(fun x -> x.Bounds))        
+            holst.[y].[x] <- new Cell(new Point(float x,float y),0,new Size(size,size),false)
+            Dispatcher.UIThread.InvokeAsync(fun () -> list.Remove(cell)|> ignore) |> Async.AwaitTask |> ignore                    
+        ()   
