@@ -19,15 +19,13 @@ type MachineCanvasViewModel() =
     let mutable list: ObservableCollection<Cell> = new ObservableCollection<Cell>()
     member val Holst:Canvas = new Canvas() with get,set
     member __.Cells with get() = list
-    member this.Finish() = this.Cells.Clear()
+    member this.Finish() =  Dispatcher.UIThread.InvokeAsync(fun () -> this.Cells.Clear()) |> Async.AwaitTask |> ignore
+                            
 
     member this.AddChild(cell:Cell)  = 
         if  list.Contains cell then
-            Dispatcher.UIThread.InvokeAsync(fun () ->
-                list.Remove(cell) |> ignore) |> Async.AwaitTask |> ignore        
-
-        Dispatcher.UIThread.InvokeAsync(fun () ->
-            list.Add(cell)) |> Async.AwaitTask |> ignore
+            list.Remove(cell) |> ignore       
+        list.Add(cell)
 
     member this.GenerateField(size:float) =
         let clear = [|for i = 0.0 to Math.Ceiling this.Holst.Bounds.Height/size - 1.0 do
@@ -44,8 +42,7 @@ type MachineCanvasViewModel() =
             if cell.Equals(cell1) then
                 curCell <- Some cell1;
         if curCell.IsSome then
-            Dispatcher.UIThread.InvokeAsync(fun () ->
-                list.Remove(curCell.Value) |> ignore) |> Async.AwaitTask |> ignore
+           list.Remove(curCell.Value) |> ignore
 
     member this.ActivateMachine(cellSize:int,rules:Rule)=
         let checkNum(point:Point) =  (point.X >= 0.0 && point.Y >= 0.0) 
@@ -107,5 +104,8 @@ type MachineCanvasViewModel() =
             let x = int (point.X/size)
             let y = int (point.Y/size)
             holst.[y].[x] <- new Cell(new Point(float x,float y),0,new Size(size,size),false)
-            Dispatcher.UIThread.InvokeAsync(fun () -> list.Remove(cell)|> ignore) |> Async.AwaitTask |> ignore                    
+            if Dispatcher.UIThread.CheckAccess() then
+                list.Remove(cell)|> ignore
+            else
+                Dispatcher.UIThread.InvokeAsync(fun () -> list.Remove(cell)|> ignore).Wait() |> ignore                    
         ()   
