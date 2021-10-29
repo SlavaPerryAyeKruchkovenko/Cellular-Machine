@@ -10,6 +10,7 @@ open Avalonia.Controls.Shapes
 open Models
 open System
 
+
 type MachineCanvasView () as self = 
     inherit UserControl ()
     do AvaloniaXamlLoader.Load self
