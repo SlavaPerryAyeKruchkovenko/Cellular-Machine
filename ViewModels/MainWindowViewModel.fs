@@ -10,12 +10,14 @@ open System.Threading.Tasks
 open System.Linq
 open System.Collections.Generic
 open Avalonia.Threading
+open Avalonia.Input
 
 type MainWindowViewModel() =
     inherit ViewModelBase()
     let menu = new MachineMenuViewModel()   
     let holst = new MachineCanvasViewModel()  
-    let mutable token = new CancellationTokenSource()     
+    let mutable token = new CancellationTokenSource()  
+    let mutable canClick = true
     member __.Menu with get() = menu
     member __.Holst with get() = holst
     member this.NextEtirationGame() = 
@@ -50,6 +52,23 @@ type MainWindowViewModel() =
         
     member this.CloseGame()= 
         token.Cancel()
-    
+     member this.AddRectangle(object:obj,e:PointerPressedEventArgs)=
+         if canClick then
+             let CorrectPos(num : float,size:float) = 
+                 let x = num % size
+                 if (x >= size/2.0) then
+                     num + size-x
+                 else
+                     num - x 
+                 
+             let size = new Size(10.0,10.0)       
+             let canvas2:Canvas = downcast object
+             let position = e.GetCurrentPoint(canvas2).Position      
+             let point = new Point(CorrectPos(position.X,size.Width),CorrectPos(position.Y,size.Width))
+             let cell = new Cell(point,0,size,true)
+             holst.AddChild(cell) 
+             holst.Holst <- canvas2
+         else
+             canClick <- true       
         
             

@@ -4,7 +4,6 @@ open Avalonia.Data.Converters
 open System.Globalization
 open System.Linq
 open System
-
 type FShartListConverter() =
     interface IValueConverter with
         member this.Convert(value: obj, targetType: System.Type, parameter: obj, culture: CultureInfo): obj =          
