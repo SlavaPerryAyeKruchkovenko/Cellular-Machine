@@ -7,6 +7,7 @@
     <AvailableItemName Include="AvaloniaResource" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Services\MyParams.fs" />
     <Compile Include="Converters\FShartListConverter.fs" />
     <Compile Include="Models\Rule.fs" />
     <AvaloniaResource Include="Assets\**" />
@@ -46,9 +47,6 @@
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.10" />
     <PackageReference Include="Avalonia.Diagnostics" Version="0.10.10" />
     <PackageReference Include="Avalonia.Xaml.Behaviors" Version="0.10.10" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Services\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Update="FSharp.Core" Version="6.0.1" />

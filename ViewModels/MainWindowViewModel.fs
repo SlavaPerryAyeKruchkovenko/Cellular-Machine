@@ -11,13 +11,41 @@ open System.Linq
 open System.Collections.Generic
 open Avalonia.Threading
 open Avalonia.Input
+open System.Windows.Input
 
+type MyCommand(holst:MachineCanvasViewModel) = 
+    let mutable canClick = true
+    member val event:PointerPressedEventArgs = null
+    interface ICommand with        
+        member this.CanExecute(parameter: obj): bool = 
+            canClick
+        [<CLIEvent>]
+        member this.CanExecuteChanged: IEvent<System.EventHandler,System.EventArgs> = 
+            raise (System.NotImplementedException())
+        member this.Execute(parameter: obj): unit = 
+            if canClick then
+                let CorrectPos(num : float,size:float) = 
+                    let x = num % size
+                    if (x >= size/2.0) then
+                        num + size-x
+                    else
+                        num - x 
+                    
+                let size = new Size(10.0,10.0)       
+                let e:PointerPressedEventArgs = downcast parameter
+                let position = e.GetCurrentPoint(canvas).Position      
+                let point = new Point(CorrectPos(position.X,size.Width),CorrectPos(position.Y,size.Width))
+                let cell = new Cell(point,0,size,true)
+                holst.AddChild(cell) 
+            else
+                canClick <- true 
 type MainWindowViewModel() =
     inherit ViewModelBase()
     let menu = new MachineMenuViewModel()   
     let holst = new MachineCanvasViewModel()  
+    let command = new MyCommand(holst)
     let mutable token = new CancellationTokenSource()  
-    let mutable canClick = true
+    member __.MyCommand with get() = command
     member __.Menu with get() = menu
     member __.Holst with get() = holst
     member this.NextEtirationGame() = 
@@ -51,24 +79,6 @@ type MainWindowViewModel() =
         task()|> Async.Start
         
     member this.CloseGame()= 
-        token.Cancel()
-     member this.AddRectangle(object:obj,e:PointerPressedEventArgs)=
-         if canClick then
-             let CorrectPos(num : float,size:float) = 
-                 let x = num % size
-                 if (x >= size/2.0) then
-                     num + size-x
-                 else
-                     num - x 
-                 
-             let size = new Size(10.0,10.0)       
-             let canvas2:Canvas = downcast object
-             let position = e.GetCurrentPoint(canvas2).Position      
-             let point = new Point(CorrectPos(position.X,size.Width),CorrectPos(position.Y,size.Width))
-             let cell = new Cell(point,0,size,true)
-             holst.AddChild(cell) 
-             holst.Holst <- canvas2
-         else
-             canClick <- true       
+        token.Cancel()       
         
             

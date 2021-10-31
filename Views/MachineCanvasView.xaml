@@ -16,7 +16,14 @@
         <Canvas Classes="Purple" x:Name="holst">
           <Interactivity:Interaction.Behaviors>
             <Interactions:EventTriggerBehavior EventName="PointerPressed" SourceObject="{Binding ElementName=holst}">
-              <Interactions:CallMethodAction TargetObject="{Binding}" MethodName="{Binding $parent[Window].DataContext.AddRectangle}"/>
+              <Interactions:InvokeCommandAction  Command="{Binding $parent[Window].DataContext.MyCommand}">
+                <Interactions:InvokeCommandAction.CommandParameter>
+                  <MultiBinding Converter="{StaticResource YourConverter}">
+                    <Binding Path="Width" ElementName="MyCanvas"/>
+                    <Binding Path="Height" ElementName="MyCanvas"/>
+                  </MultiBinding>
+                </Interactions:InvokeCommandAction.CommandParameter>
+              </Interactions:InvokeCommandAction>
             </Interactions:EventTriggerBehavior>
           </Interactivity:Interaction.Behaviors>
         </Canvas>
