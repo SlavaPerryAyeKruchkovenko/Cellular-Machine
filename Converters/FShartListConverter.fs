@@ -4,6 +4,8 @@ open Avalonia.Data.Converters
 open System.Globalization
 open System.Linq
 open System
+open Avalonia.Input
+open Services
 type FShartListConverter() =
     interface IValueConverter with
         member this.Convert(value: obj, targetType: System.Type, parameter: obj, culture: CultureInfo): obj =          
@@ -25,4 +27,9 @@ type FShartListConverter() =
                         with
                         | _ -> [0]
             upcast answer   
-
+type EventConverter() =
+    interface IMultiValueConverter with
+        member this.Convert(values: Collections.Generic.IList<obj>, targetType: Type, parameter: obj, culture: CultureInfo): obj = 
+           let event:PointerPressedEventArgs = downcast values.[0]
+           let canvas = values.[1]
+           upcast new MyParams(event,canvas)

@@ -17,7 +17,6 @@ type MachineCanvasViewModel() =
 
     let mutable holst:Cell [][] = [|[||]|]
     let mutable list: ObservableCollection<Cell> = new ObservableCollection<Cell>()
-    member val Holst:Canvas = new Canvas() with get,set
     member __.Cells with get() = list
     member this.Finish() =  Dispatcher.UIThread.InvokeAsync(fun () -> this.Cells.Clear()) |> Async.AwaitTask |> ignore
                             
@@ -27,9 +26,9 @@ type MachineCanvasViewModel() =
             list.Remove(cell) |> ignore       
         list.Add(cell)
 
-    member this.GenerateField(size:float) =
-        let clear = [|for i = 0.0 to Math.Ceiling this.Holst.Bounds.Height/size - 1.0 do
-                        [|for j = 0.0 to Math.Ceiling this.Holst.Bounds.Width/size - 1.0 do
+    member this.GenerateField(size:float,canvas:Canvas) =
+        let clear = [|for i = 0.0 to Math.Ceiling canvas.Bounds.Height/size - 1.0 do
+                        [|for j = 0.0 to Math.Ceiling canvas.Bounds.Width/size - 1.0 do
                             new Cell(new Point(i,j),0,new Size(size,size),false)|]|] 
         for cell in list do
             clear.[int (cell.Location.Y/size)].[int (cell.Location.X/size)] <- cell

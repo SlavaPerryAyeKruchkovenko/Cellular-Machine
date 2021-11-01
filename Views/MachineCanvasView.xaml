@@ -9,7 +9,10 @@
     mc:Ignorable="d"
     xmlns:Interactivity="using:Avalonia.Xaml.Interactivity"
     xmlns:Interactions="using:Avalonia.Xaml.Interactions.Core"
-    > 
+    xmlns:local="clr-namespace:Converters">
+  <UserControl.Resources>
+    <local:FShartListConverter x:Key="myConverter"/>
+  </UserControl.Resources>
   <ItemsControl Items="{Binding Cells}" x:Name="items">
     <ItemsControl.ItemsPanel>
       <ItemsPanelTemplate>
@@ -17,12 +20,6 @@
           <Interactivity:Interaction.Behaviors>
             <Interactions:EventTriggerBehavior EventName="PointerPressed" SourceObject="{Binding ElementName=holst}">
               <Interactions:InvokeCommandAction  Command="{Binding $parent[Window].DataContext.MyCommand}">
-                <Interactions:InvokeCommandAction.CommandParameter>
-                  <MultiBinding Converter="{StaticResource YourConverter}">
-                    <Binding Path="Width" ElementName="MyCanvas"/>
-                    <Binding Path="Height" ElementName="MyCanvas"/>
-                  </MultiBinding>
-                </Interactions:InvokeCommandAction.CommandParameter>
               </Interactions:InvokeCommandAction>
             </Interactions:EventTriggerBehavior>
           </Interactivity:Interaction.Behaviors>
