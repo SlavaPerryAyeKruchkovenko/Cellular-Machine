@@ -27,9 +27,3 @@ type FShartListConverter() =
                         with
                         | _ -> [0]
             upcast answer   
-type EventConverter() =
-    interface IMultiValueConverter with
-        member this.Convert(values: Collections.Generic.IList<obj>, targetType: Type, parameter: obj, culture: CultureInfo): obj = 
-           let event:PointerPressedEventArgs = downcast values.[0]
-           let canvas = values.[1]
-           upcast new MyParams(event,canvas)

@@ -7,7 +7,7 @@
     <AvailableItemName Include="AvaloniaResource" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Services\MyParams.fs" />
+    <Compile Include="Services\MyCommand.fs" />
     <Compile Include="Converters\FShartListConverter.fs" />
     <Compile Include="Models\Rule.fs" />
     <AvaloniaResource Include="Assets\**" />

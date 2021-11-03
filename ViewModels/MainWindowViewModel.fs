@@ -10,9 +10,9 @@ open System.Windows.Input
 open Services
 open Avalonia.Controls
 open Avalonia
+open System
 
 type MyCommand(holst:MachineCanvasViewModel,menu:MachineMenuViewModel) = 
-    member val event:PointerPressedEventArgs = null
     interface ICommand with        
         member this.CanExecute(parameter: obj): bool = 
             true
@@ -26,23 +26,24 @@ type MyCommand(holst:MachineCanvasViewModel,menu:MachineMenuViewModel) =
                         num + size-x
                     else
                         num - x 
-                    
-                let size = new Size(float menu.Value,float menu.Value)
+                let value = menu.Value    
+                let size = new Size(float value,float value)
                 let e:PointerPressedEventArgs=  downcast parameter
                 if e.Source :? Canvas then
                     let canvas:Canvas = downcast e.Source
                     let position = e.GetCurrentPoint(canvas).Position      
                     let point = new Point(CorrectPos(position.X,size.Width),CorrectPos(position.Y,size.Width))
-                    let cell = new Cell(point,0,size,true)                
-                    holst.AddChild(cell) 
-                    holst.GenerateField(size.Width,canvas)
+                    let cell = new Cell(point,0,size,true)   
+                    holst.AddChild cell
+                    holst.GenerateField(size.Width,canvas)  
 type MainWindowViewModel()=
     inherit ViewModelBase()
     let menu = new MachineMenuViewModel()   
     let holst = new MachineCanvasViewModel()  
     let command = new MyCommand(holst,menu)
     let mutable token = new CancellationTokenSource()  
-    let mutable canClick = true;
+    let mutable canClick = true
+    member __.ChangeValueCommand with get() = new ChangeValueCommand(Func<unit>__.CloseGame,Func<unit>holst.Finish)
     member __.MyCommand with get() = command
     member __.Menu with get() = menu
     member __.Holst with get() = holst
